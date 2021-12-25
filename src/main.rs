@@ -4,15 +4,15 @@ use tch::{nn, nn::ModuleT, nn::OptimizerConfig, Device};
 fn net(vs: &nn::Path) -> impl ModuleT {
     nn::seq_t()
         .add_fn(|xs| xs.view([-1, 1, 28, 28]))
-        .add(nn::conv2d(vs, 1, 32, 5, Default::default()))
+        .add(nn::conv2d(vs / "conv2d_1", 1, 32, 5, Default::default()))
         .add_fn(|xs| xs.max_pool2d_default(2))
-        .add(nn::conv2d(vs, 32, 64, 5, Default::default()))
+        .add(nn::conv2d(vs / "conv2d_2", 32, 64, 5, Default::default()))
         .add_fn(|xs| xs.max_pool2d_default(2))
         .add_fn(|xs| xs.view([-1, 1024]))
-        .add(nn::linear(vs, 1024, 1024, Default::default()))
+        .add(nn::linear(vs / "linear_1", 1024, 1024, Default::default()))
         .add_fn(|xs| xs.relu())
         .add_fn_t(|xs, train| xs.dropout(0.5, train))
-        .add(nn::linear(vs, 1024, 10, Default::default()))
+        .add(nn::linear(vs / "linear_2", 1024, 10, Default::default()))
 }
 
 fn main() -> Result<()> {
