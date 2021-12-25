@@ -1,42 +1,61 @@
-
 use anyhow::Result;
-use tch::{nn, nn::Module, nn::OptimizerConfig, Device};
+use tch::{nn, nn::ModuleT, nn::OptimizerConfig, Device, Tensor};
 
-const IMAGE_DIM: i64 = 784;
-const HIDDEN_NODES: i64 = 128;
-const LABELS: i64 = 10;
-
-fn net(vs: &nn::Path) -> impl Module {
-    nn::seq()
-        .add(nn::linear(
-            vs / "layer1",
-            IMAGE_DIM,
-            HIDDEN_NODES,
-            Default::default(),
-        ))
-        .add_fn(|xs| xs.relu())
-        .add(nn::linear(vs, HIDDEN_NODES, LABELS, Default::default()))
+#[derive(Debug)]
+struct Net {
+    conv1: nn::Conv2D,
+    conv2: nn::Conv2D,
+    fc1: nn::Linear,
+    fc2: nn::Linear,
 }
 
-pub fn main() -> Result<()> {
+impl Net {
+    fn new(vs: &nn::Path) -> Net {
+        let conv1 = nn::conv2d(vs, 1, 32, 5, Default::default());
+        let conv2 = nn::conv2d(vs, 32, 64, 5, Default::default());
+        let fc1 = nn::linear(vs, 1024, 1024, Default::default());
+        let fc2 = nn::linear(vs, 1024, 10, Default::default());
+        Net {
+            conv1,
+            conv2,
+            fc1,
+            fc2,
+        }
+    }
+}
+
+impl nn::ModuleT for Net {
+    fn forward_t(&self, xs: &Tensor, train: bool) -> Tensor {
+        xs.view([-1, 1, 28, 28])
+            .apply(&self.conv1)
+            .max_pool2d_default(2)
+            .apply(&self.conv2)
+            .max_pool2d_default(2)
+            .view([-1, 1024])
+            .apply(&self.fc1)
+            .relu()
+            .copy() // これ追加する
+            .dropout_(0.5, train)
+            .apply(&self.fc2)
+    }
+}
+
+fn main() -> Result<()> {
     let m = tch::vision::mnist::load_dir("data")?;
-    let vs = nn::VarStore::new(Device::Cpu);
-    let net = net(&vs.root());
-    let mut opt = nn::Adam::default().build(&vs, 1e-3)?;
-    for epoch in 1..1000 {
-        let loss = net
-            .forward(&m.train_images)
-            .cross_entropy_for_logits(&m.train_labels);
-        opt.backward_step(&loss);
-        let test_accuracy = net
-            .forward(&m.test_images)
-            .accuracy_for_logits(&m.test_labels);
-        println!(
-            "epoch: {:4} train loss: {:8.5} test acc: {:5.2}%",
-            epoch,
-            f64::from(&loss),
-            100. * f64::from(&test_accuracy),
-        );
+    let vs = nn::VarStore::new(Device::cuda_if_available());
+    let net = Net::new(&vs.root());
+    let mut opt = nn::Adam::default().build(&vs, 1e-4)?;
+    for epoch in 1..100 {
+        for (bimages, blabels) in m.train_iter(256).shuffle().to_device(vs.device()) {
+            let loss = net
+                .forward_t(&bimages, true)
+                .cross_entropy_for_logits(&blabels);
+            opt.backward_step(&loss);
+        }
+        let test_accuracy =
+            net.batch_accuracy_for_logits(&m.test_images, &m.test_labels, vs.device(), 1024);
+        println!("epoch: {:4} test acc: {:5.2}%", epoch, 100. * test_accuracy);
+        vs.save("vs.zip").unwrap();
     }
     Ok(())
 }
