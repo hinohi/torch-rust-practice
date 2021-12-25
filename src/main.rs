@@ -30,7 +30,7 @@ fn main() -> Result<()> {
         let test_accuracy =
             net.batch_accuracy_for_logits(&m.test_images, &m.test_labels, vs.device(), 1024);
         println!("epoch: {:4} test acc: {:5.2}%", epoch, 100. * test_accuracy);
-        vs.save("vs2.zip").unwrap();
+        vs.save("vs.zip").unwrap();
     }
     Ok(())
 }
