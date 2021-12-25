@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import torch
 from torch import nn
+from torch.nn.functional import log_softmax, nll_loss
 
 
 class NN(nn.Module):
@@ -17,6 +18,7 @@ class NN(nn.Module):
             nn.Linear(1024, 1024),
             nn.ReLU(),
             nn.Linear(1024, 10),
+            nn.Softmax(-1),
         )
         state_map = [
             ('conv2d_1|', '0.'),
@@ -39,7 +41,7 @@ def main():
     model = NN().cpu()
     print(model)
 
-    dummy_input = torch.randn(10, 1, 28, 28, device='cpu')
+    dummy_input = torch.randn(1, 1, 28, 28, device='cpu')
     torch.onnx.export(model, dummy_input, 'mnist.onnx')
 
 
