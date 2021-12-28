@@ -4,8 +4,10 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-torch = "*"
-numpy = "*"
+# 回線が遅くて入らないので一旦コメントアウト
+#torch = "*"
+#numpy = "*"
+onnxoptimizer = "*"
 
 [dev-packages]
 pipenv = "*"
