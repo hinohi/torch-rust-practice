@@ -2,4 +2,5 @@
 members = [
     "tch-train",
     "tract-mnist",
+    "web-front",
 ]

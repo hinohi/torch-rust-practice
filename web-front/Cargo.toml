@@ -1,0 +1,25 @@
+[package]
+name = "torch-onnx-web-rs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+anyhow = "1.0"
+js-sys = "0.3.55"
+wasm-bindgen = { version = "0.2.78", features = ["serde-serialize"] }
+
+[dependencies.web-sys]
+version = "0.3.55"
+features = [
+    'console',
+    'Document',
+    'Element',
+    'HtmlCanvasElement',
+    'CanvasRenderingContext2d',
+    'Window',
+]
