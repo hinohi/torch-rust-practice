@@ -1,36 +1,87 @@
-use wasm_bindgen::{prelude::*, JsCast};
-use web_sys::{CanvasRenderingContext2d, HtmlCanvasElement};
+use wasm_bindgen::prelude::*;
+use web_sys::CanvasRenderingContext2d;
 
-fn window() -> web_sys::Window {
-    web_sys::window().expect("no global `window` exists")
+#[wasm_bindgen]
+pub struct App {
+    context: CanvasRenderingContext2d,
+    mouse_pressed: bool,
 }
 
-fn document() -> web_sys::Document {
-    window()
-        .document()
-        .expect("should have a document on window")
+#[wasm_bindgen]
+#[derive(Debug, Copy, Clone)]
+pub enum MouseEventType {
+    Down,
+    Enter,
+    Leave,
+    Move,
+    Out,
+    Over,
+    Up,
 }
 
-#[wasm_bindgen(start)]
-pub fn run() -> Result<(), JsValue> {
-    let canvas: HtmlCanvasElement = document()
-        .get_element_by_id("canvas")
-        .expect("No canvas")
-        .dyn_into()
-        .expect("No canvas");
+#[wasm_bindgen]
+#[derive(Debug, Copy, Clone)]
+pub struct MouseEvent {
+    event_type: MouseEventType,
+    x: f64,
+    y: f64,
+}
 
-    canvas.set_width(600);
-    canvas.set_height(600);
+#[wasm_bindgen]
+impl MouseEvent {
+    #[wasm_bindgen(constructor)]
+    pub fn new(event_type: MouseEventType, x: f64, y: f64) -> MouseEvent {
+        MouseEvent { event_type, x, y }
+    }
+}
 
-    let ctx: CanvasRenderingContext2d = canvas
-        .get_context("2d")
-        .expect("This Platform is unsupported context 2d")
-        .unwrap()
-        .dyn_into()
-        .unwrap();
+#[wasm_bindgen]
+impl App {
+    #[wasm_bindgen(constructor)]
+    pub fn new(context: CanvasRenderingContext2d) -> App {
+        App {
+            context,
+            mouse_pressed: false,
+        }
+    }
 
-    ctx.fill_rect(25., 25., 100., 100.);
-    ctx.clear_rect(45., 45., 60., 60.);
-    ctx.stroke_rect(50., 50., 50., 50.);
-    Ok(())
+    #[wasm_bindgen]
+    pub fn mouse_event(&mut self, event: MouseEvent) {
+        use MouseEventType::*;
+        match event.event_type {
+            Down => {
+                self.mouse_pressed = true;
+                self.context.begin_path();
+                self.context.move_to(event.x, event.y);
+            }
+            Enter => {
+                if self.mouse_pressed {
+                    self.context.begin_path();
+                    self.context.move_to(event.x, event.y);
+                }
+            }
+            Leave | Out => {
+                if self.mouse_pressed {
+                    self.context.line_to(event.x, event.y);
+                    self.context.stroke();
+                }
+            }
+            Move => {
+                if self.mouse_pressed {
+                    self.context.line_to(event.x, event.y);
+                    self.context.stroke();
+                    self.context.begin_path();
+                    self.context.move_to(event.x, event.y);
+                }
+            }
+            Up => {
+                if self.mouse_pressed {
+                    self.context.line_to(event.x, event.y);
+                    self.context.stroke();
+                }
+                self.mouse_pressed = false;
+            }
+            Over => (),
+        }
+    }
 }
