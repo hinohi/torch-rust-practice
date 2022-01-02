@@ -7,7 +7,7 @@
     "serve": "webpack-dev-server"
   },
   "dependencies": {
-    "torch-onnx-web-rs": "./pkg"
+    "torch-onnx-web-rs": "./web-front/pkg"
   },
   "devDependencies": {
     "@types/webpack": "^5.28.0",

@@ -20,22 +20,6 @@ pub enum MouseEventType {
 }
 
 #[wasm_bindgen]
-#[derive(Debug, Copy, Clone)]
-pub struct MouseEvent {
-    event_type: MouseEventType,
-    x: f64,
-    y: f64,
-}
-
-#[wasm_bindgen]
-impl MouseEvent {
-    #[wasm_bindgen(constructor)]
-    pub fn new(event_type: MouseEventType, x: f64, y: f64) -> MouseEvent {
-        MouseEvent { event_type, x, y }
-    }
-}
-
-#[wasm_bindgen]
 impl App {
     #[wasm_bindgen(constructor)]
     pub fn new(context: CanvasRenderingContext2d) -> App {
@@ -46,37 +30,37 @@ impl App {
     }
 
     #[wasm_bindgen]
-    pub fn mouse_event(&mut self, event: MouseEvent) {
+    pub fn mouse_event(&mut self, event_type: MouseEventType, x: f64, y: f64) {
         use MouseEventType::*;
-        match event.event_type {
+        match event_type {
             Down => {
                 self.mouse_pressed = true;
                 self.context.begin_path();
-                self.context.move_to(event.x, event.y);
+                self.context.move_to(x, y);
             }
             Enter => {
                 if self.mouse_pressed {
                     self.context.begin_path();
-                    self.context.move_to(event.x, event.y);
+                    self.context.move_to(x, y);
                 }
             }
             Leave | Out => {
                 if self.mouse_pressed {
-                    self.context.line_to(event.x, event.y);
+                    self.context.line_to(x, y);
                     self.context.stroke();
                 }
             }
             Move => {
                 if self.mouse_pressed {
-                    self.context.line_to(event.x, event.y);
+                    self.context.line_to(x, y);
                     self.context.stroke();
                     self.context.begin_path();
-                    self.context.move_to(event.x, event.y);
+                    self.context.move_to(x, y);
                 }
             }
             Up => {
                 if self.mouse_pressed {
-                    self.context.line_to(event.x, event.y);
+                    self.context.line_to(x, y);
                     self.context.stroke();
                 }
                 self.mouse_pressed = false;
