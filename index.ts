@@ -15,6 +15,7 @@ if (!context) {
 }
 
 const app = new App(canvasSize, context);
+app.clear();
 
 canvas.addEventListener('mousedown', (event) => {
     app.mouse_event(MouseEventType.Down, event.offsetX, event.offsetY, event.buttons);
@@ -30,4 +31,9 @@ canvas.addEventListener('mouseenter', (event) => {
 });
 canvas.addEventListener('mouseleave', (event) => {
     app.mouse_event(MouseEventType.Leave, event.offsetX, event.offsetY, event.buttons);
+});
+document.addEventListener('keydown', (event) => {
+    if (event.key == ' ') {
+        app.clear();
+    }
 });
