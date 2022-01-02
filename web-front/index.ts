@@ -14,23 +14,23 @@ if (!context) {
 const app = new App(context);
 
 canvas.addEventListener('mousedown', (event) => {
-    app.mouse_event(new MouseEvent(MouseEventType.Down, event.x, event.y));
+    app.mouse_event(new MouseEvent(MouseEventType.Down, event.offsetX, event.offsetY));
 });
 canvas.addEventListener('mouseup', (event) => {
-    app.mouse_event(new MouseEvent(MouseEventType.Up, event.x, event.y));
+    app.mouse_event(new MouseEvent(MouseEventType.Up, event.offsetX, event.offsetY));
 });
 canvas.addEventListener('mousemove', (event) => {
-    app.mouse_event(new MouseEvent(MouseEventType.Move, event.x, event.y));
+    app.mouse_event(new MouseEvent(MouseEventType.Move, event.offsetX, event.offsetY));
 });
 canvas.addEventListener('mouseenter', (event) => {
-    app.mouse_event(new MouseEvent(MouseEventType.Enter, event.x, event.y));
+    app.mouse_event(new MouseEvent(MouseEventType.Enter, event.offsetX, event.offsetY));
 });
 canvas.addEventListener('mouseleave', (event) => {
-    app.mouse_event(new MouseEvent(MouseEventType.Leave, event.x, event.y));
+    app.mouse_event(new MouseEvent(MouseEventType.Leave, event.offsetX, event.offsetY));
 });
 canvas.addEventListener('mouseover', (event) => {
-    app.mouse_event(new MouseEvent(MouseEventType.Over, event.x, event.y));
+    app.mouse_event(new MouseEvent(MouseEventType.Over, event.offsetX, event.offsetY));
 });
 canvas.addEventListener('mouseout', (event) => {
-    app.mouse_event(new MouseEvent(MouseEventType.Out, event.x, event.y));
+    app.mouse_event(new MouseEvent(MouseEventType.Out, event.offsetX, event.offsetY));
 });
