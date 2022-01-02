@@ -27,6 +27,7 @@ const config: webpack.Configuration = {
     extensions: ['.ts', '.js'],
   },
   mode: "development",
+  devtool: false,
 }
 
 export default config;
