@@ -26,10 +26,10 @@ impl NN {
         NN { model }
     }
 
-    pub fn run(&self, data: &[f32]) -> anyhow::Result<[f32; 10]> {
+    pub fn run(&self, data: &[f32]) -> anyhow::Result<[f32; 11]> {
         let tensor = Tensor::from_shape(&[1, 1, 28, 28], data)?;
         let result = self.model.run(tvec![tensor]).context("Fail to run model")?;
-        let mut prob = [0.0; 10];
+        let mut prob = [0.0; 11];
         for (d, s) in prob
             .iter_mut()
             .zip(result[0].to_array_view::<f32>()?.iter())

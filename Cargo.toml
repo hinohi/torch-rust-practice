@@ -3,4 +3,5 @@ members = [
     "tch-train",
     "tract-mnist",
     "web-front",
+    "mnist-data",
 ]

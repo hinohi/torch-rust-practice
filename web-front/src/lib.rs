@@ -105,7 +105,12 @@ impl App {
             Ok(prob) => {
                 let mut s = String::new();
                 for (i, &p) in prob.iter().enumerate() {
-                    s.push_str(&format!("{}: {} {:.2}%\n", i, bar(25.0, p), p * 100.0));
+                    let label = if i < 10 {
+                        i.to_string()
+                    } else {
+                        " ".to_string()
+                    };
+                    s.push_str(&format!("{}: {} {:.2}%\n", label, bar(25.0, p), p * 100.0));
                 }
                 s
             }

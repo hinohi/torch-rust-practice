@@ -8,3 +8,6 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0"
 tract-onnx = "0.15.8"
+rand_pcg = "0.3"
+
+mnist-data = { path = "../mnist-data" }

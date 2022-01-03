@@ -17,7 +17,7 @@ class NN(nn.Module):
             nn.Flatten(),
             nn.Linear(1024, 1024),
             nn.ReLU(),
-            nn.Linear(1024, 10),
+            nn.Linear(1024, 11),
             nn.Softmax(-1),
         )
         state_map = [
