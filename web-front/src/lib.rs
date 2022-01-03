@@ -87,19 +87,38 @@ impl App {
 impl App {
     fn draw_rect(&mut self, x: i32, y: i32) {
         let cell_size = self.canvas_size / MNIST_SIZE;
+
+        let dist2 = |ix, iy| {
+            let dx = ix * cell_size + cell_size / 2 - x;
+            let dy = iy * cell_size + cell_size / 2 - y;
+            dx * dx + dy * dy
+        };
+
         let ix = x / cell_size;
         let iy = y / cell_size;
-        let i = (iy * MNIST_SIZE + ix) as usize;
-        if self.data[i] == 1.0 {
-            return;
+        for ix in ix - 1..=ix + 1 {
+            for iy in iy - 1..=iy + 1 {
+                let d = dist2(ix, iy);
+                let ox = ix * cell_size;
+                let oy = iy * cell_size;
+                let i = (iy * MNIST_SIZE + ix) as usize;
+                if d > cell_size * cell_size * 2 {
+                    continue;
+                }
+                self.data[i] = 1.0;
+                self.letter_canvas.set_fill_style(&"black".into());
+                self.letter_canvas.fill_rect(
+                    ox as f64,
+                    oy as f64,
+                    cell_size as f64,
+                    cell_size as f64,
+                );
+            }
         }
-        let ox = ix * cell_size;
-        let oy = iy * cell_size;
-        self.letter_canvas.set_fill_style(&"black".into());
-        self.letter_canvas
-            .fill_rect(ox as f64, oy as f64, cell_size as f64, cell_size as f64);
-        self.data[i] = 1.0;
+        self.run_nn_and_show();
+    }
 
+    fn run_nn_and_show(&self) {
         let result = self.model.run(&self.data);
         let s = match result {
             Ok(prob) => {
