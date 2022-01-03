@@ -3,14 +3,17 @@
   "version": "0.0.0",
   "description": "",
   "scripts": {
-    "build": "tsc",
-    "serve": "webpack-dev-server"
+    "build-dev": "webpack",
+    "build-prod": "MODE_ENV=prod webpack",
+    "serve": "webpack-dev-server",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "torch-onnx-web-rs": "./web-front/pkg"
   },
   "devDependencies": {
     "@types/webpack": "^5.28.0",
+    "gh-pages": "^3.2.3",
     "html-webpack-plugin": "^5.5.0",
     "ts-loader": "^9.2.6",
     "ts-node": "^10.4.0",

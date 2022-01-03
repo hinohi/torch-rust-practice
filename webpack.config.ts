@@ -2,6 +2,12 @@ import * as webpack from "webpack";
 import * as path from "path";
 import HtmlWebpackPlugin from "html-webpack-plugin";
 
+let mode: 'production' | 'development';
+if (process.env.MODE_ENV === 'prod') {
+  mode = 'production';
+} else {
+  mode = 'development';
+}
 const config: webpack.Configuration = {
   target: "web",
   entry: "./index.ts",
@@ -26,7 +32,7 @@ const config: webpack.Configuration = {
   resolve: {
     extensions: ['.ts', '.js'],
   },
-  mode: "development",
+  mode,
   devtool: false,
 }
 
