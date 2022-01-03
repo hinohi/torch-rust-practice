@@ -1,13 +1,19 @@
+mod mnist;
+
+use mnist::NN;
 use wasm_bindgen::prelude::*;
-use web_sys::CanvasRenderingContext2d;
+use web_sys::{CanvasRenderingContext2d, HtmlElement};
 
 const MNIST_SIZE: i32 = 28;
 
 #[wasm_bindgen]
 pub struct App {
-    context: CanvasRenderingContext2d,
+    letter_canvas: CanvasRenderingContext2d,
     canvas_size: i32,
+    prob_view: HtmlElement,
     mouse_pressed: bool,
+    data: [f32; (MNIST_SIZE * MNIST_SIZE) as usize],
+    model: NN,
 }
 
 #[wasm_bindgen]
@@ -23,11 +29,18 @@ pub enum MouseEventType {
 #[wasm_bindgen]
 impl App {
     #[wasm_bindgen(constructor)]
-    pub fn new(canvas_size: i32, context: CanvasRenderingContext2d) -> App {
+    pub fn new(
+        canvas_size: i32,
+        letter_canvas: CanvasRenderingContext2d,
+        prob_view: HtmlElement,
+    ) -> App {
         App {
-            context,
+            letter_canvas,
             canvas_size,
+            prob_view,
             mouse_pressed: false,
+            data: [0.0; (MNIST_SIZE * MNIST_SIZE) as usize],
+            model: NN::new(),
         }
     }
 
@@ -62,20 +75,42 @@ impl App {
     }
 
     #[wasm_bindgen]
-    pub fn clear(&self) {
-        self.context.set_fill_style(&"ghostwhite".into());
-        self.context
+    pub fn clear(&mut self) {
+        self.letter_canvas.set_fill_style(&"ghostwhite".into());
+        self.letter_canvas
             .fill_rect(0.0, 0.0, self.canvas_size as f64, self.canvas_size as f64);
+        self.data = [0.0; (MNIST_SIZE * MNIST_SIZE) as usize];
+        self.prob_view.set_inner_text("");
     }
 }
 
 impl App {
-    fn draw_rect(&self, x: i32, y: i32) {
+    fn draw_rect(&mut self, x: i32, y: i32) {
         let cell_size = self.canvas_size / MNIST_SIZE;
-        let ox = x / cell_size * cell_size;
-        let oy = y / cell_size * cell_size;
-        self.context.set_fill_style(&"black".into());
-        self.context
+        let ix = x / cell_size;
+        let iy = y / cell_size;
+        let i = (iy * MNIST_SIZE + ix) as usize;
+        if self.data[i] == 1.0 {
+            return;
+        }
+        let ox = ix * cell_size;
+        let oy = iy * cell_size;
+        self.letter_canvas.set_fill_style(&"black".into());
+        self.letter_canvas
             .fill_rect(ox as f64, oy as f64, cell_size as f64, cell_size as f64);
+        self.data[i] = 1.0;
+
+        let result = self.model.run(&self.data);
+        let s = match result {
+            Ok(prob) => {
+                let mut s = String::new();
+                for (i, &p) in prob.iter().enumerate() {
+                    s.push_str(&format!("{}: {:.3}%\n", i, p * 100.0));
+                }
+                s
+            }
+            Err(e) => format!("{}", e),
+        };
+        self.prob_view.set_inner_text(&s);
     }
 }

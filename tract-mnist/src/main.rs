@@ -42,6 +42,10 @@ fn read_labels<P: AsRef<Path>>(path: P) -> std::io::Result<Vec<u8>> {
     Ok(data)
 }
 
+fn print_type_of<T>(_: &T) {
+    println!("{}", std::any::type_name::<T>())
+}
+
 fn main() -> TractResult<()> {
     let start = Instant::now();
     let model = tract_onnx::onnx()
@@ -53,6 +57,7 @@ fn main() -> TractResult<()> {
         .into_optimized()?
         .into_runnable()?;
     println!("load onnx model: {:.3}sec", start.elapsed().as_secs_f64());
+    print_type_of(&model);
 
     let start = Instant::now();
     let images = read_images("data/t10k-images-idx3-ubyte").unwrap();
