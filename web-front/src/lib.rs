@@ -105,7 +105,7 @@ impl App {
             Ok(prob) => {
                 let mut s = String::new();
                 for (i, &p) in prob.iter().enumerate() {
-                    s.push_str(&format!("{}: {:.3}%\n", i, p * 100.0));
+                    s.push_str(&format!("{}: {} {:.2}%\n", i, bar(25.0, p), p * 100.0));
                 }
                 s
             }
@@ -113,4 +113,25 @@ impl App {
         };
         self.prob_view.set_inner_text(&s);
     }
+}
+
+fn bar(max_length: f32, p: f32) -> String {
+    let chunks = (max_length * p).floor();
+    let remainder = ((max_length - chunks) * 8.0 / max_length).floor();
+    let mut bar = String::new();
+    for _ in 0..chunks as usize {
+        bar.push('█');
+    }
+    match remainder as usize {
+        0 => (),
+        1 => bar.push('▏'),
+        2 => bar.push('▎'),
+        3 => bar.push('▍'),
+        4 => bar.push('▌'),
+        5 => bar.push('▋'),
+        6 => bar.push('▊'),
+        7 => bar.push('▉'),
+        _ => (),
+    }
+    bar
 }
