@@ -98,14 +98,17 @@ impl App {
         let iy = y / cell_size;
         for ix in ix - 1..=ix + 1 {
             for iy in iy - 1..=iy + 1 {
+                let i = iy * MNIST_SIZE + ix;
+                if i < 0 || self.data.len() as i32 <= i {
+                    continue;
+                }
                 let d = dist2(ix, iy);
                 let ox = ix * cell_size;
                 let oy = iy * cell_size;
-                let i = (iy * MNIST_SIZE + ix) as usize;
                 if d > cell_size * cell_size * 2 {
                     continue;
                 }
-                self.data[i] = 1.0;
+                self.data[i as usize] = 1.0;
                 self.letter_canvas.set_fill_style(&"black".into());
                 self.letter_canvas.fill_rect(
                     ox as f64,
